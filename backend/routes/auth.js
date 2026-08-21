@@ -4,7 +4,16 @@ const jwt = require("jsonwebtoken");
 
 const db = require("../database");
 
+const {
+    authenticateToken
+} = require("../middleware/auth");
+
 const router = express.Router();
+
+
+// =====================================================
+// CONFIGURACIÓN JWT
+// =====================================================
 
 const JWT_SECRET =
     process.env.JWT_SECRET ||
@@ -38,6 +47,7 @@ function createToken(user) {
 
 // =====================================================
 // LOGIN
+// POST /api/auth/login
 // =====================================================
 
 router.post(
@@ -74,23 +84,39 @@ router.post(
 
 
             // -----------------------------------------
-            // BUSCAR USUARIO
+            // NORMALIZAR CORREO
+            // -----------------------------------------
+
+            const normalizedEmail =
+                email
+                    .trim()
+                    .toLowerCase();
+
+
+            // -----------------------------------------
+            // BUSCAR USUARIO ACTIVO
             // -----------------------------------------
 
             const user =
                 db.prepare(`
-                    SELECT *
+                    SELECT
+                        id,
+                        name,
+                        email,
+                        password,
+                        role,
+                        active
                     FROM users
                     WHERE email = ?
                     AND active = 1
                 `).get(
-
-                    email
-                        .trim()
-                        .toLowerCase()
-
+                    normalizedEmail
                 );
 
+
+            // -----------------------------------------
+            // USUARIO NO ENCONTRADO
+            // -----------------------------------------
 
             if (!user) {
 
@@ -195,7 +221,8 @@ router.post(
 
 
 // =====================================================
-// OBTENER USUARIO ACTUAL
+// USUARIO ACTUAL
+// GET /api/auth/me
 // =====================================================
 
 router.get(
@@ -221,6 +248,10 @@ router.get(
                 );
 
 
+            // -----------------------------------------
+            // USUARIO NO EXISTE
+            // -----------------------------------------
+
             if (!user) {
 
                 return res.status(404).json({
@@ -234,6 +265,28 @@ router.get(
 
             }
 
+
+            // -----------------------------------------
+            // USUARIO DESACTIVADO
+            // -----------------------------------------
+
+            if (!user.active) {
+
+                return res.status(403).json({
+
+                    success: false,
+
+                    message:
+                        "La cuenta está desactivada"
+
+                });
+
+            }
+
+
+            // -----------------------------------------
+            // RESPUESTA
+            // -----------------------------------------
 
             res.json({
 
@@ -265,89 +318,6 @@ router.get(
 
     }
 );
-
-
-// =====================================================
-// MIDDLEWARE LOCAL
-// =====================================================
-
-function authenticateToken(
-    req,
-    res,
-    next
-) {
-
-    const authHeader =
-        req.headers.authorization;
-
-
-    if (!authHeader) {
-
-        return res.status(401).json({
-
-            success: false,
-
-            message:
-                "Token no proporcionado"
-
-        });
-
-    }
-
-
-    const parts =
-        authHeader.split(" ");
-
-
-    if (
-        parts.length !== 2 ||
-        parts[0] !== "Bearer"
-    ) {
-
-        return res.status(401).json({
-
-            success: false,
-
-            message:
-                "Formato de token inválido"
-
-        });
-
-    }
-
-
-    const token =
-        parts[1];
-
-
-    try {
-
-        const decoded =
-            jwt.verify(
-                token,
-                JWT_SECRET
-            );
-
-
-        req.user = decoded;
-
-        next();
-
-
-    } catch (error) {
-
-        return res.status(401).json({
-
-            success: false,
-
-            message:
-                "Token inválido o expirado"
-
-        });
-
-    }
-
-}
 
 
 module.exports = router;
