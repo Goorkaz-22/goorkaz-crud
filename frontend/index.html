@@ -1768,6 +1768,128 @@ async function apiFetch(
 
 
 // =====================================================
+// CAMBIAR VISTA
+// =====================================================
+
+function showView(view) {
+
+    document
+        .querySelectorAll(".nav button")
+        .forEach(
+            item =>
+                item.classList.remove(
+                    "active"
+                )
+        );
+
+
+    const selectedButton =
+        document.querySelector(
+            `.nav button[data-view="${view}"]`
+        );
+
+
+    if (selectedButton) {
+
+        selectedButton.classList.add(
+            "active"
+        );
+
+    }
+
+
+    document
+        .querySelectorAll(".view")
+        .forEach(
+            section =>
+                section.classList.remove(
+                    "active"
+                )
+        );
+
+
+    const selectedView =
+        document.getElementById(
+            `${view}View`
+        );
+
+
+    if (selectedView) {
+
+        selectedView.classList.add(
+            "active"
+        );
+
+    }
+
+
+    const titles = {
+
+        dashboard:
+            "Dashboard",
+
+        records:
+            "Registros",
+
+        users:
+            "Usuarios",
+
+        audit:
+            "Auditoría"
+
+    };
+
+
+    document
+        .getElementById(
+            "pageTitle"
+        )
+        .textContent =
+            titles[view] || "Dashboard";
+
+
+    if (view === "dashboard") {
+
+        loadDashboard();
+
+    }
+
+    if (view === "records") {
+
+        loadRecords();
+
+    }
+
+    if (view === "users") {
+
+        if (
+            currentUser &&
+            currentUser.role === "admin"
+        ) {
+
+            loadUsers();
+
+        }
+
+    }
+
+    if (view === "audit") {
+
+        if (
+            currentUser &&
+            currentUser.role === "admin"
+        ) {
+
+            loadAudit();
+
+        }
+
+    }
+
+}
+    
+
+// =====================================================
 // NAVEGACIÓN
 // =====================================================
 
@@ -1784,99 +1906,26 @@ document
                         button.dataset.view;
 
 
-                    document
-                        .querySelectorAll(".nav button")
-                        .forEach(
-                            item =>
-                                item.classList.remove(
-                                    "active"
-                                )
-                        );
-
-
-                    button.classList.add(
-                        "active"
-                    );
-
-
-                    document
-                        .querySelectorAll(".view")
-                        .forEach(
-                            section =>
-                                section.classList.remove(
-                                    "active"
-                                )
-                        );
-
-
-                    document
-                        .getElementById(
-                            `${view}View`
+                    // Seguridad adicional
+                    if (
+                        (
+                            view === "users" ||
+                            view === "audit"
+                        ) &&
+                        (
+                            !currentUser ||
+                            currentUser.role !== "admin"
                         )
-                        .classList.add(
-                            "active"
-                        );
-
-
-                    const titles = {
-
-                        dashboard:
-                            "Dashboard",
-
-                        records:
-                            "Registros",
-
-                        users:
-                            "Usuarios",
-
-                        audit:
-                            "Auditoría"
-
-                    };
-
-
-                    document
-                        .getElementById(
-                            "pageTitle"
-                        )
-                        .textContent =
-                            titles[view];
-
-
-                    if (
-                        view === "dashboard"
                     ) {
 
-                        loadDashboard();
+                        showView("dashboard");
+
+                        return;
 
                     }
 
 
-                    if (
-                        view === "records"
-                    ) {
-
-                        loadRecords();
-
-                    }
-
-
-                    if (
-                        view === "users"
-                    ) {
-
-                        loadUsers();
-
-                    }
-
-
-                    if (
-                        view === "audit"
-                    ) {
-
-                        loadAudit();
-
-                    }
+                    showView(view);
 
                 }
             );
@@ -1884,30 +1933,72 @@ document
         }
     );
 
-
 // =====================================================
-// OCULTAR USUARIOS SI NO ES ADMIN
+// CONTROL DE NAVEGACIÓN POR ROL
 // =====================================================
 
-if (
-    !currentUser ||
-    currentUser.role !== "admin"
-) {
+function applyRolePermissions() {
 
-    document
-        .getElementById(
+    const isAdmin =
+        currentUser &&
+        String(currentUser.role)
+            .toLowerCase() === "admin";
+
+
+    const usersNav =
+        document.getElementById(
             "usersNav"
-        )
-        .style.display =
-            "none";
+        );
 
-
-    document
-        .getElementById(
+    const auditNav =
+        document.getElementById(
             "auditNav"
-        )
-        .style.display =
-            "none";
+        );
+
+
+    if (usersNav) {
+
+        usersNav.style.display =
+            isAdmin
+                ? ""
+                : "none";
+
+    }
+
+
+    if (auditNav) {
+
+        auditNav.style.display =
+            isAdmin
+                ? ""
+                : "none";
+
+    }
+
+
+    // Si no es administrador y estaba
+    // en una sección protegida,
+    // volver al Dashboard.
+
+    if (!isAdmin) {
+
+        const activeProtectedView =
+            document.getElementById(
+                "auditView"
+            );
+
+        if (
+            activeProtectedView &&
+            activeProtectedView.classList.contains(
+                "active"
+            )
+        ) {
+
+            showView("dashboard");
+
+        }
+
+    }
 
 }
 
@@ -1930,6 +2021,10 @@ async function loadDashboard() {
             data.records || [];
 
 
+        // =================================================
+        // TOTAL DE REGISTROS
+        // =================================================
+
         document
             .getElementById(
                 "totalRecords"
@@ -1938,6 +2033,10 @@ async function loadDashboard() {
                 records.length;
 
 
+        // =================================================
+        // REGISTROS ACTIVOS
+        // =================================================
+
         document
             .getElementById(
                 "activeRecords"
@@ -1945,10 +2044,13 @@ async function loadDashboard() {
             .textContent =
                 records.filter(
                     record =>
-                        record.status ===
-                        "Activo"
+                        record.status === "Activo"
                 ).length;
 
+
+        // =================================================
+        // ÚLTIMOS REGISTROS
+        // =================================================
 
         const recent =
             records.slice(
@@ -1964,45 +2066,57 @@ async function loadDashboard() {
         );
 
 
-        if (
+        // =================================================
+        // USUARIOS
+        // SOLO ADMIN
+        // =================================================
+
+        const totalUsers =
+            document.getElementById(
+                "totalUsers"
+            );
+
+
+        const isAdmin =
             currentUser &&
-            currentUser.role === "admin"
-        ) {
-
-            try {
-
-                const users =
-                    await apiFetch(
-                        "/users"
-                    );
+            String(currentUser.role)
+                .toLowerCase() === "admin";
 
 
-                document
-                    .getElementById(
-                        "totalUsers"
-                    )
-                    .textContent =
-                        users.users.length;
+        if (!isAdmin) {
 
-            } catch (error) {
+            totalUsers.textContent =
+                "—";
 
-                document
-                    .getElementById(
-                        "totalUsers"
-                    )
-                    .textContent =
-                        "—";
+            return;
 
-            }
+        }
 
-        } else {
 
-            document
-                .getElementById(
-                    "totalUsers"
-                )
-                .textContent =
-                    "—";
+        try {
+
+            const users =
+                await apiFetch(
+                    "/users"
+                );
+
+
+            totalUsers.textContent =
+                (
+                    users.users || []
+                ).length;
+
+
+        } catch (error) {
+
+            console.error(
+                "Error obteniendo usuarios:",
+                error
+            );
+
+
+            totalUsers.textContent =
+                "—";
 
         }
 
@@ -2010,8 +2124,33 @@ async function loadDashboard() {
     } catch (error) {
 
         console.error(
+            "Error cargando dashboard:",
             error
         );
+
+
+        document
+            .getElementById(
+                "totalRecords"
+            )
+            .textContent =
+                "—";
+
+
+        document
+            .getElementById(
+                "activeRecords"
+            )
+            .textContent =
+                "—";
+
+
+        document
+            .getElementById(
+                "totalUsers"
+            )
+            .textContent =
+                "—";
 
     }
 
