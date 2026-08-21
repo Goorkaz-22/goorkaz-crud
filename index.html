@@ -1,0 +1,2586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090a0f">
+
+<title>Goorkaz CRUD — V2</title>
+
+<style>
+:root{
+    --bg:#08090d;
+    --panel:#101218;
+    --panel2:#151821;
+    --border:rgba(255,255,255,.08);
+    --text:#f5f7fb;
+    --muted:#8d94a3;
+    --accent:#8b5cf6;
+    --accent2:#a78bfa;
+    --green:#22c55e;
+    --red:#ef4444;
+    --yellow:#f59e0b;
+    --blue:#3b82f6;
+    --radius:16px;
+    --sidebar:250px;
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:Inter,Segoe UI,Arial,sans-serif;
+    min-height:100vh;
+}
+
+button,
+input,
+select{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+a{
+    color:inherit;
+    text-decoration:none;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.app{
+    display:flex;
+    min-height:100vh;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar{
+    width:var(--sidebar);
+    position:fixed;
+    top:0;
+    left:0;
+    bottom:0;
+    background:#0c0e13;
+    border-right:1px solid var(--border);
+    padding:24px 16px;
+    z-index:100;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:4px 10px 30px;
+}
+
+.brand-logo{
+    width:38px;
+    height:38px;
+    border-radius:11px;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(135deg,#8b5cf6,#6366f1);
+    font-weight:900;
+    box-shadow:0 10px 30px rgba(139,92,246,.25);
+}
+
+.brand-name{
+    font-weight:850;
+    letter-spacing:-.6px;
+}
+
+.brand-name span{
+    color:var(--accent2);
+}
+
+.menu-label{
+    color:#555c69;
+    font-size:10px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    padding:0 11px;
+    margin:12px 0 9px;
+}
+
+.menu{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+}
+
+.menu button{
+    width:100%;
+    border:0;
+    background:transparent;
+    color:var(--muted);
+    padding:12px;
+    border-radius:10px;
+    text-align:left;
+    transition:.2s;
+}
+
+.menu button:hover,
+.menu button.active{
+    background:rgba(139,92,246,.12);
+    color:#fff;
+}
+
+.menu button.active{
+    box-shadow:inset 3px 0 0 var(--accent);
+}
+
+.sidebar-footer{
+    position:absolute;
+    left:16px;
+    right:16px;
+    bottom:20px;
+    padding:14px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    background:rgba(255,255,255,.02);
+}
+
+.sidebar-footer small{
+    display:block;
+    color:var(--muted);
+    font-size:10px;
+}
+
+.sidebar-footer strong{
+    display:block;
+    margin-top:4px;
+    font-size:12px;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.main{
+    margin-left:var(--sidebar);
+    width:calc(100% - var(--sidebar));
+    padding:28px;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    margin-bottom:30px;
+}
+
+.page-title h1{
+    font-size:30px;
+    letter-spacing:-1.5px;
+}
+
+.page-title p{
+    color:var(--muted);
+    font-size:13px;
+    margin-top:4px;
+}
+
+.top-actions{
+    display:flex;
+    gap:9px;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.btn{
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:#fff;
+    padding:11px 15px;
+    border-radius:10px;
+    font-size:12px;
+    font-weight:750;
+    transition:.2s;
+}
+
+.btn:hover{
+    background:var(--panel2);
+    transform:translateY(-1px);
+}
+
+.btn-primary{
+    background:var(--accent);
+    border-color:var(--accent);
+}
+
+.btn-primary:hover{
+    background:#7c3aed;
+}
+
+.btn-danger{
+    background:rgba(239,68,68,.1);
+    color:#ff8d8d;
+    border-color:rgba(239,68,68,.2);
+}
+
+.btn-green{
+    background:rgba(34,197,94,.1);
+    color:#75e69a;
+    border-color:rgba(34,197,94,.2);
+}
+
+/* =========================
+   DASHBOARD
+========================= */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:22px;
+}
+
+.stat{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:21px;
+    position:relative;
+    overflow:hidden;
+}
+
+.stat::after{
+    content:"";
+    position:absolute;
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    background:var(--accent);
+    opacity:.08;
+    right:-25px;
+    top:-25px;
+}
+
+.stat-label{
+    color:var(--muted);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.8px;
+}
+
+.stat-value{
+    font-size:30px;
+    font-weight:850;
+    margin-top:8px;
+}
+
+.stat-detail{
+    color:#6f7684;
+    font-size:11px;
+    margin-top:4px;
+}
+
+/* =========================
+   PANEL
+========================= */
+
+.panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+}
+
+.panel-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    padding:20px;
+    border-bottom:1px solid var(--border);
+}
+
+.panel-title h2{
+    font-size:17px;
+}
+
+.panel-title p{
+    color:var(--muted);
+    font-size:11px;
+    margin-top:3px;
+}
+
+/* =========================
+   TOOLBAR
+========================= */
+
+.toolbar{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:15px 20px;
+    border-bottom:1px solid var(--border);
+}
+
+.search{
+    flex:1;
+    position:relative;
+}
+
+.search input{
+    width:100%;
+    background:#0b0d12;
+    border:1px solid var(--border);
+    color:#fff;
+    outline:none;
+    border-radius:9px;
+    padding:11px 13px 11px 37px;
+}
+
+.search::before{
+    content:"⌕";
+    position:absolute;
+    left:13px;
+    top:8px;
+    color:var(--muted);
+    font-size:18px;
+    z-index:1;
+}
+
+select{
+    background:#0b0d12;
+    border:1px solid var(--border);
+    color:#fff;
+    border-radius:9px;
+    padding:10px 12px;
+    outline:none;
+}
+
+input:focus,
+select:focus{
+    border-color:rgba(139,92,246,.7);
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.table-wrap{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:800px;
+}
+
+th{
+    text-align:left;
+    padding:13px 20px;
+    color:#737b89;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.8px;
+    font-weight:800;
+    background:#0d0f14;
+}
+
+td{
+    padding:15px 20px;
+    border-top:1px solid var(--border);
+    font-size:13px;
+}
+
+tr:hover td{
+    background:rgba(255,255,255,.018);
+}
+
+.name-cell{
+    font-weight:750;
+}
+
+.email{
+    color:var(--muted);
+    font-size:11px;
+    margin-top:2px;
+}
+
+.badge{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:5px 8px;
+    border-radius:7px;
+    font-size:10px;
+    font-weight:750;
+}
+
+.badge.active{
+    color:#7bed9d;
+    background:rgba(34,197,94,.1);
+}
+
+.badge.inactive{
+    color:#ff8e8e;
+    background:rgba(239,68,68,.1);
+}
+
+.badge-dot{
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:currentColor;
+}
+
+.category{
+    color:var(--accent2);
+}
+
+.actions{
+    display:flex;
+    gap:5px;
+}
+
+.icon-btn{
+    width:31px;
+    height:31px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#0d0f14;
+    color:#b7bdc8;
+}
+
+.icon-btn:hover{
+    color:#fff;
+    background:#181b22;
+}
+
+.icon-btn.delete:hover{
+    color:#ff7777;
+}
+
+/* =========================
+   EMPTY
+========================= */
+
+.empty{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--muted);
+}
+
+.empty-icon{
+    font-size:35px;
+    margin-bottom:10px;
+}
+
+/* =========================
+   PAGINATION
+========================= */
+
+.pagination{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 20px;
+    border-top:1px solid var(--border);
+}
+
+.pagination-info{
+    color:var(--muted);
+    font-size:11px;
+}
+
+.pagination-buttons{
+    display:flex;
+    gap:5px;
+}
+
+.page-btn{
+    min-width:32px;
+    height:32px;
+    border:1px solid var(--border);
+    background:#0c0e13;
+    color:#aaa;
+    border-radius:8px;
+}
+
+.page-btn.active{
+    background:var(--accent);
+    color:#fff;
+    border-color:var(--accent);
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.72);
+    backdrop-filter:blur(7px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:500;
+    padding:20px;
+}
+
+.modal-overlay.show{
+    display:flex;
+}
+
+.modal{
+    width:min(520px,100%);
+    background:#11141a;
+    border:1px solid var(--border);
+    border-radius:20px;
+    box-shadow:0 30px 100px rgba(0,0,0,.55);
+    animation:modalIn .2s ease;
+}
+
+@keyframes modalIn{
+    from{
+        opacity:0;
+        transform:translateY(10px) scale(.98);
+    }
+    to{
+        opacity:1;
+        transform:none;
+    }
+}
+
+.modal-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:20px;
+    border-bottom:1px solid var(--border);
+}
+
+.modal-header h2{
+    font-size:18px;
+}
+
+.close{
+    width:34px;
+    height:34px;
+    border:1px solid var(--border);
+    background:#0c0e13;
+    color:#aaa;
+    border-radius:9px;
+}
+
+.modal-body{
+    padding:20px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+}
+
+.field{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+
+.field.full{
+    grid-column:1/-1;
+}
+
+.field label{
+    color:#9ca3af;
+    font-size:11px;
+    font-weight:700;
+}
+
+.field input,
+.field select{
+    width:100%;
+    padding:11px 12px;
+    border:1px solid var(--border);
+    border-radius:9px;
+    background:#0b0d12;
+    color:#fff;
+    outline:none;
+}
+
+.modal-footer{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    padding:16px 20px;
+    border-top:1px solid var(--border);
+}
+
+/* =========================
+   TOAST
+========================= */
+
+.toast-container{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    z-index:900;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.toast{
+    background:#171a20;
+    border:1px solid var(--border);
+    padding:13px 16px;
+    border-radius:11px;
+    box-shadow:0 15px 50px rgba(0,0,0,.4);
+    font-size:12px;
+    animation:toastIn .25s ease;
+}
+
+.toast.success{
+    border-color:rgba(34,197,94,.25);
+}
+
+.toast.error{
+    border-color:rgba(239,68,68,.25);
+}
+
+@keyframes toastIn{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform:none;
+    }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+.mobile-menu{
+    display:none;
+}
+
+@media(max-width:1000px){
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:800px){
+
+    :root{
+        --sidebar:0px;
+    }
+
+    .sidebar{
+        transform:translateX(-100%);
+        transition:.25s;
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    .main{
+        width:100%;
+        margin-left:0;
+        padding:18px;
+    }
+
+    .mobile-menu{
+        display:grid;
+        place-items:center;
+        width:38px;
+        height:38px;
+        border:1px solid var(--border);
+        background:var(--panel);
+        color:#fff;
+        border-radius:9px;
+    }
+
+    .topbar{
+        align-items:flex-start;
+    }
+
+    .top-actions .btn{
+        display:none;
+    }
+
+    .top-actions .btn-primary{
+        display:block;
+    }
+
+    .toolbar{
+        flex-wrap:wrap;
+    }
+
+    .search{
+        flex-basis:100%;
+    }
+
+}
+
+@media(max-width:560px){
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+        gap:9px;
+    }
+
+    .stat{
+        padding:15px;
+    }
+
+    .stat-value{
+        font-size:24px;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .field.full{
+        grid-column:auto;
+    }
+
+    .panel-header{
+        align-items:flex-start;
+    }
+
+    .pagination{
+        flex-direction:column;
+        gap:10px;
+        align-items:flex-start;
+    }
+
+    .topbar{
+        gap:10px;
+    }
+
+    .page-title h1{
+        font-size:24px;
+    }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                G
+            </div>
+
+            <div class="brand-name">
+                G<span>oo</span>rkaz
+            </div>
+
+        </div>
+
+        <div class="menu-label">
+            Sistema
+        </div>
+
+        <div class="menu">
+
+            <button class="active">
+                ▦ &nbsp; Dashboard
+            </button>
+
+            <button onclick="focusRecords()">
+                ◫ &nbsp; Registros
+            </button>
+
+            <button onclick="openModal()">
+                ＋ &nbsp; Nuevo registro
+            </button>
+
+        </div>
+
+        <div class="menu-label">
+            Herramientas
+        </div>
+
+        <div class="menu">
+
+            <button onclick="exportCSV()">
+                ↓ &nbsp; Exportar CSV
+            </button>
+
+            <button onclick="document.getElementById('csvInput').click()">
+                ↑ &nbsp; Importar CSV
+            </button>
+
+            <button onclick="loadDemo()">
+                ✦ &nbsp; Datos demo
+            </button>
+
+        </div>
+
+        <div class="sidebar-footer">
+
+            <small>
+                GOORKAZ SYSTEMS
+            </small>
+
+            <strong>
+                CRUD V2.0
+            </strong>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <div style="display:flex;align-items:center;gap:12px;">
+
+                <button
+                    class="mobile-menu"
+                    onclick="toggleSidebar()"
+                >
+                    ☰
+                </button>
+
+                <div class="page-title">
+
+                    <h1>
+                        Dashboard
+                    </h1>
+
+                    <p>
+                        Gestión de registros · Goorkaz Systems
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="top-actions">
+
+                <button
+                    class="btn"
+                    onclick="exportCSV()"
+                >
+                    ↓ CSV
+                </button>
+
+                <button
+                    class="btn btn-primary"
+                    onclick="openModal()"
+                >
+                    ＋ Nuevo registro
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             STATS
+        ========================== -->
+
+        <section class="stats">
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Total registros
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="totalStat"
+                >
+                    0
+                </div>
+
+                <div class="stat-detail">
+                    Registros almacenados
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Activos
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="activeStat"
+                >
+                    0
+                </div>
+
+                <div class="stat-detail">
+                    Estado activo
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Inactivos
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="inactiveStat"
+                >
+                    0
+                </div>
+
+                <div class="stat-detail">
+                    Estado inactivo
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Categorías
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="categoryStat"
+                >
+                    0
+                </div>
+
+                <div class="stat-detail">
+                    Categorías utilizadas
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             RECORDS
+        ========================== -->
+
+        <section
+            class="panel"
+            id="recordsPanel"
+        >
+
+            <div class="panel-header">
+
+                <div class="panel-title">
+
+                    <h2>
+                        Registros
+                    </h2>
+
+                    <p>
+                        Administrá tus registros desde un solo lugar.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="toolbar">
+
+                <div class="search">
+
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Buscar por nombre, correo, teléfono..."
+                        oninput="applyFilters()"
+                    >
+
+                </div>
+
+
+                <select
+                    id="categoryFilter"
+                    onchange="applyFilters()"
+                >
+
+                    <option value="">
+                        Todas las categorías
+                    </option>
+
+                </select>
+
+
+                <select
+                    id="statusFilter"
+                    onchange="applyFilters()"
+                >
+
+                    <option value="">
+                        Todos los estados
+                    </option>
+
+                    <option value="Activo">
+                        Activos
+                    </option>
+
+                    <option value="Inactivo">
+                        Inactivos
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Persona
+                            </th>
+
+                            <th>
+                                Teléfono
+                            </th>
+
+                            <th>
+                                Categoría
+                            </th>
+
+                            <th>
+                                Estado
+                            </th>
+
+                            <th>
+                                Fecha
+                            </th>
+
+                            <th>
+                                Acciones
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tableBody">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div
+                class="pagination"
+                id="pagination"
+            >
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =========================
+     MODAL
+========================= -->
+
+<div
+    class="modal-overlay"
+    id="modal"
+>
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">
+                Nuevo registro
+            </h2>
+
+            <button
+                class="close"
+                onclick="closeModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form
+            id="recordForm"
+            onsubmit="saveRecord(event)"
+        >
+
+            <div class="modal-body">
+
+                <input
+                    type="hidden"
+                    id="recordId"
+                >
+
+                <div class="form-grid">
+
+                    <div class="field">
+
+                        <label>
+                            Nombre
+                        </label>
+
+                        <input
+                            type="text"
+                            id="name"
+                            required
+                            placeholder="Ej. Luis Fernández"
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Correo
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            required
+                            placeholder="correo@ejemplo.com"
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Teléfono
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            placeholder="999 999 999"
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>
+                            Categoría
+                        </label>
+
+                        <select
+                            id="category"
+                            required
+                        >
+
+                            <option value="">
+                                Seleccionar
+                            </option>
+
+                            <option>
+                                Cliente
+                            </option>
+
+                            <option>
+                                Empresa
+                            </option>
+
+                            <option>
+                                Proveedor
+                            </option>
+
+                            <option>
+                                Colaborador
+                            </option>
+
+                            <option>
+                                Otro
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="field full">
+
+                        <label>
+                            Estado
+                        </label>
+
+                        <select id="status">
+
+                            <option value="Activo">
+                                Activo
+                            </option>
+
+                            <option value="Inactivo">
+                                Inactivo
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="closeModal()"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Guardar registro
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     TOAST
+========================= -->
+
+<div
+    class="toast-container"
+    id="toastContainer"
+></div>
+
+
+<!-- =========================
+     CSV INPUT
+========================= -->
+
+<input
+    type="file"
+    id="csvInput"
+    accept=".csv"
+    hidden
+    onchange="importCSV(event)"
+>
+
+
+<script>
+
+/* =========================================================
+   CONFIGURACIÓN
+========================================================= */
+
+const STORAGE_KEY = "goorkaz_crud_v2";
+
+let records = [];
+
+let filteredRecords = [];
+
+let currentPage = 1;
+
+const pageSize = 8;
+
+
+/* =========================================================
+   INICIALIZAR
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    loadRecords();
+
+    render();
+
+});
+
+
+/* =========================================================
+   DATOS DEMO
+========================================================= */
+
+const demoData = [
+
+    {
+        id: crypto.randomUUID(),
+        name: "Luis Fernández",
+        email: "luisfz.1706@gmail.com",
+        phone: "916540023",
+        category: "Cliente",
+        status: "Activo",
+        date: "20/08/2026"
+    },
+
+    {
+        id: crypto.randomUUID(),
+        name: "María González",
+        email: "maria@example.com",
+        phone: "987654321",
+        category: "Empresa",
+        status: "Activo",
+        date: "19/08/2026"
+    },
+
+    {
+        id: crypto.randomUUID(),
+        name: "Carlos Ramírez",
+        email: "carlos@example.com",
+        phone: "956123456",
+        category: "Proveedor",
+        status: "Activo",
+        date: "18/08/2026"
+    },
+
+    {
+        id: crypto.randomUUID(),
+        name: "Ana Torres",
+        email: "ana@example.com",
+        phone: "944555222",
+        category: "Colaborador",
+        status: "Inactivo",
+        date: "17/08/2026"
+    },
+
+    {
+        id: crypto.randomUUID(),
+        name: "Pedro Sánchez",
+        email: "pedro@example.com",
+        phone: "933444111",
+        category: "Cliente",
+        status: "Activo",
+        date: "16/08/2026"
+    }
+
+];
+
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+function loadRecords(){
+
+    const saved =
+        localStorage.getItem(STORAGE_KEY);
+
+    if(saved){
+
+        try{
+
+            records = JSON.parse(saved);
+
+        }catch{
+
+            records = [];
+
+        }
+
+    }
+
+}
+
+
+function saveStorage(){
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(records)
+    );
+
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function render(){
+
+    updateStats();
+
+    updateCategoryFilter();
+
+    applyFilters();
+
+}
+
+
+/* =========================================================
+   ESTADÍSTICAS
+========================================================= */
+
+function updateStats(){
+
+    const active =
+        records.filter(
+            r => r.status === "Activo"
+        ).length;
+
+    const inactive =
+        records.filter(
+            r => r.status === "Inactivo"
+        ).length;
+
+    const categories =
+        new Set(
+            records.map(
+                r => r.category
+            )
+        ).size;
+
+    document.getElementById("totalStat")
+        .textContent = records.length;
+
+    document.getElementById("activeStat")
+        .textContent = active;
+
+    document.getElementById("inactiveStat")
+        .textContent = inactive;
+
+    document.getElementById("categoryStat")
+        .textContent = categories;
+
+}
+
+
+/* =========================================================
+   CATEGORÍAS
+========================================================= */
+
+function updateCategoryFilter(){
+
+    const select =
+        document.getElementById(
+            "categoryFilter"
+        );
+
+    const current =
+        select.value;
+
+    const categories =
+        [...new Set(
+            records.map(
+                r => r.category
+            )
+        )].sort();
+
+    select.innerHTML =
+        `<option value="">Todas las categorías</option>`;
+
+    categories.forEach(category => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = category;
+
+        option.textContent = category;
+
+        select.appendChild(option);
+
+    });
+
+    select.value = current;
+
+}
+
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+function applyFilters(){
+
+    const search =
+        document.getElementById(
+            "searchInput"
+        ).value
+        .toLowerCase()
+        .trim();
+
+    const category =
+        document.getElementById(
+            "categoryFilter"
+        ).value;
+
+    const status =
+        document.getElementById(
+            "statusFilter"
+        ).value;
+
+
+    filteredRecords =
+        records.filter(record => {
+
+            const matchesSearch =
+                !search ||
+                record.name.toLowerCase().includes(search) ||
+                record.email.toLowerCase().includes(search) ||
+                record.phone.toLowerCase().includes(search) ||
+                record.category.toLowerCase().includes(search);
+
+            const matchesCategory =
+                !category ||
+                record.category === category;
+
+            const matchesStatus =
+                !status ||
+                record.status === status;
+
+            return (
+                matchesSearch &&
+                matchesCategory &&
+                matchesStatus
+            );
+
+        });
+
+
+    currentPage = 1;
+
+    renderTable();
+
+    renderPagination();
+
+}
+
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+function renderTable(){
+
+    const body =
+        document.getElementById(
+            "tableBody"
+        );
+
+    const start =
+        (currentPage - 1) * pageSize;
+
+    const end =
+        start + pageSize;
+
+    const pageRecords =
+        filteredRecords.slice(
+            start,
+            end
+        );
+
+
+    body.innerHTML = "";
+
+
+    if(!pageRecords.length){
+
+        body.innerHTML = `
+
+            <tr>
+
+                <td colspan="6">
+
+                    <div class="empty">
+
+                        <div class="empty-icon">
+                            ◫
+                        </div>
+
+                        <div>
+                            No se encontraron registros.
+                        </div>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    pageRecords.forEach(record => {
+
+        const tr =
+            document.createElement("tr");
+
+
+        tr.innerHTML = `
+
+            <td>
+
+                <div class="name-cell">
+                    ${escapeHTML(record.name)}
+                </div>
+
+                <div class="email">
+                    ${escapeHTML(record.email)}
+                </div>
+
+            </td>
+
+
+            <td>
+                ${escapeHTML(record.phone || "—")}
+            </td>
+
+
+            <td>
+
+                <span class="category">
+                    ${escapeHTML(record.category)}
+                </span>
+
+            </td>
+
+
+            <td>
+
+                <span class="badge ${record.status === "Activo" ? "active" : "inactive"}">
+
+                    <span class="badge-dot"></span>
+
+                    ${record.status}
+
+                </span>
+
+            </td>
+
+
+            <td>
+                ${record.date}
+            </td>
+
+
+            <td>
+
+                <div class="actions">
+
+                    <button
+                        class="icon-btn"
+                        title="Editar"
+                        onclick="editRecord('${record.id}')"
+                    >
+                        ✎
+                    </button>
+
+                    <button
+                        class="icon-btn delete"
+                        title="Eliminar"
+                        onclick="deleteRecord('${record.id}')"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+            </td>
+
+        `;
+
+
+        body.appendChild(tr);
+
+    });
+
+}
+
+
+/* =========================================================
+   PAGINACIÓN
+========================================================= */
+
+function renderPagination(){
+
+    const container =
+        document.getElementById(
+            "pagination"
+        );
+
+    const total =
+        filteredRecords.length;
+
+    const pages =
+        Math.ceil(total / pageSize);
+
+
+    container.innerHTML = "";
+
+
+    if(!total){
+
+        return;
+
+    }
+
+
+    const start =
+        ((currentPage - 1) * pageSize) + 1;
+
+    const end =
+        Math.min(
+            currentPage * pageSize,
+            total
+        );
+
+
+    const info =
+        document.createElement("div");
+
+    info.className =
+        "pagination-info";
+
+    info.textContent =
+        `Mostrando ${start}–${end} de ${total}`;
+
+
+    const buttons =
+        document.createElement("div");
+
+    buttons.className =
+        "pagination-buttons";
+
+
+    for(
+        let i = 1;
+        i <= pages;
+        i++
+    ){
+
+        const button =
+            document.createElement("button");
+
+        button.className =
+            "page-btn" +
+            (
+                i === currentPage
+                    ? " active"
+                    : ""
+            );
+
+        button.textContent = i;
+
+        button.onclick = () => {
+
+            currentPage = i;
+
+            renderTable();
+
+            renderPagination();
+
+        };
+
+        buttons.appendChild(button);
+
+    }
+
+
+    container.appendChild(info);
+
+    container.appendChild(buttons);
+
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+function openModal(id = null){
+
+    const modal =
+        document.getElementById(
+            "modal"
+        );
+
+    const form =
+        document.getElementById(
+            "recordForm"
+        );
+
+    form.reset();
+
+    document.getElementById(
+        "recordId"
+    ).value = "";
+
+    document.getElementById(
+        "modalTitle"
+    ).textContent =
+        "Nuevo registro";
+
+
+    if(id){
+
+        const record =
+            records.find(
+                r => r.id === id
+            );
+
+        if(!record) return;
+
+
+        document.getElementById(
+            "recordId"
+        ).value = record.id;
+
+        document.getElementById(
+            "name"
+        ).value = record.name;
+
+        document.getElementById(
+            "email"
+        ).value = record.email;
+
+        document.getElementById(
+            "phone"
+        ).value = record.phone;
+
+        document.getElementById(
+            "category"
+        ).value = record.category;
+
+        document.getElementById(
+            "status"
+        ).value = record.status;
+
+        document.getElementById(
+            "modalTitle"
+        ).textContent =
+            "Editar registro";
+
+    }
+
+
+    modal.classList.add("show");
+
+    setTimeout(() => {
+
+        document.getElementById(
+            "name"
+        ).focus();
+
+    },100);
+
+}
+
+
+function closeModal(){
+
+    document.getElementById(
+        "modal"
+    ).classList.remove("show");
+
+}
+
+
+document.getElementById(
+    "modal"
+).addEventListener(
+    "click",
+    event => {
+
+        if(
+            event.target.id === "modal"
+        ){
+
+            closeModal();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   GUARDAR
+========================================================= */
+
+function saveRecord(event){
+
+    event.preventDefault();
+
+
+    const id =
+        document.getElementById(
+            "recordId"
+        ).value;
+
+
+    const data = {
+
+        name:
+            document.getElementById(
+                "name"
+            ).value.trim(),
+
+        email:
+            document.getElementById(
+                "email"
+            ).value.trim(),
+
+        phone:
+            document.getElementById(
+                "phone"
+            ).value.trim(),
+
+        category:
+            document.getElementById(
+                "category"
+            ).value,
+
+        status:
+            document.getElementById(
+                "status"
+            ).value
+
+    };
+
+
+    if(id){
+
+        const index =
+            records.findIndex(
+                r => r.id === id
+            );
+
+        if(index !== -1){
+
+            records[index] = {
+
+                ...records[index],
+
+                ...data
+
+            };
+
+            showToast(
+                "Registro actualizado.",
+                "success"
+            );
+
+        }
+
+    }else{
+
+        records.unshift({
+
+            id:
+                crypto.randomUUID(),
+
+            ...data,
+
+            date:
+                new Date()
+                    .toLocaleDateString(
+                        "es-PE"
+                    )
+
+        });
+
+        showToast(
+            "Registro creado correctamente.",
+            "success"
+        );
+
+    }
+
+
+    saveStorage();
+
+    closeModal();
+
+    render();
+
+}
+
+
+/* =========================================================
+   EDITAR
+========================================================= */
+
+function editRecord(id){
+
+    openModal(id);
+
+}
+
+
+/* =========================================================
+   ELIMINAR
+========================================================= */
+
+function deleteRecord(id){
+
+    const record =
+        records.find(
+            r => r.id === id
+        );
+
+    if(!record) return;
+
+
+    const confirmed =
+        confirm(
+            `¿Eliminar el registro de ${record.name}?`
+        );
+
+
+    if(!confirmed){
+
+        return;
+
+    }
+
+
+    records =
+        records.filter(
+            r => r.id !== id
+        );
+
+
+    saveStorage();
+
+    render();
+
+    showToast(
+        "Registro eliminado.",
+        "success"
+    );
+
+}
+
+
+/* =========================================================
+   DATOS DEMO
+========================================================= */
+
+function loadDemo(){
+
+    const confirmed =
+        confirm(
+            "Esto agregará registros de demostración. ¿Continuar?"
+        );
+
+    if(!confirmed) return;
+
+
+    records = [
+        ...demoData,
+        ...records
+    ];
+
+
+    saveStorage();
+
+    render();
+
+    showToast(
+        "Datos demo agregados.",
+        "success"
+    );
+
+}
+
+
+/* =========================================================
+   EXPORTAR CSV
+========================================================= */
+
+function exportCSV(){
+
+    if(!records.length){
+
+        showToast(
+            "No hay registros para exportar.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const headers = [
+        "ID",
+        "Nombre",
+        "Correo",
+        "Telefono",
+        "Categoria",
+        "Estado",
+        "Fecha"
+    ];
+
+
+    const rows =
+        records.map(record => [
+
+            record.id,
+
+            record.name,
+
+            record.email,
+
+            record.phone,
+
+            record.category,
+
+            record.status,
+
+            record.date
+
+        ]);
+
+
+    const csv = [
+
+        headers,
+
+        ...rows
+
+    ]
+
+    .map(
+        row =>
+            row
+                .map(csvEscape)
+                .join(",")
+    )
+
+    .join("\n");
+
+
+    const blob =
+        new Blob(
+            ["\ufeff" + csv],
+            {
+                type:"text/csv;charset=utf-8;"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(blob);
+
+
+    const a =
+        document.createElement("a");
+
+    a.href = url;
+
+    a.download =
+        "goorkaz-registros.csv";
+
+    a.click();
+
+
+    URL.revokeObjectURL(url);
+
+
+    showToast(
+        "CSV exportado correctamente.",
+        "success"
+    );
+
+}
+
+
+function csvEscape(value){
+
+    return `"${String(
+        value ?? ""
+    ).replaceAll(
+        '"',
+        '""'
+    )}"`;
+
+}
+
+
+/* =========================================================
+   IMPORTAR CSV
+========================================================= */
+
+function importCSV(event){
+
+    const file =
+        event.target.files[0];
+
+    if(!file) return;
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload = e => {
+
+        const text =
+            e.target.result
+                .replace(/^\uFEFF/, "");
+
+
+        const lines =
+            text
+                .split(/\r?\n/)
+                .filter(Boolean);
+
+
+        if(lines.length < 2){
+
+            showToast(
+                "El archivo CSV está vacío.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const imported = [];
+
+
+        for(
+            let i = 1;
+            i < lines.length;
+            i++
+        ){
+
+            const values =
+                parseCSVLine(
+                    lines[i]
+                );
+
+
+            if(values.length < 7){
+
+                continue;
+
+            }
+
+
+            imported.push({
+
+                id:
+                    values[0] ||
+                    crypto.randomUUID(),
+
+                name:
+                    values[1],
+
+                email:
+                    values[2],
+
+                phone:
+                    values[3],
+
+                category:
+                    values[4] || "Otro",
+
+                status:
+                    values[5] || "Activo",
+
+                date:
+                    values[6] ||
+                    new Date()
+                        .toLocaleDateString(
+                            "es-PE"
+                        )
+
+            });
+
+        }
+
+
+        records = [
+            ...imported,
+            ...records
+        ];
+
+
+        saveStorage();
+
+        render();
+
+
+        showToast(
+            `${imported.length} registros importados.`,
+            "success"
+        );
+
+    };
+
+
+    reader.readAsText(file);
+
+    event.target.value = "";
+
+}
+
+
+function parseCSVLine(line){
+
+    const result = [];
+
+    let current = "";
+
+    let insideQuotes = false;
+
+
+    for(
+        let i = 0;
+        i < line.length;
+        i++
+    ){
+
+        const char =
+            line[i];
+
+        const next =
+            line[i + 1];
+
+
+        if(
+            char === '"' &&
+            insideQuotes &&
+            next === '"'
+        ){
+
+            current += '"';
+
+            i++;
+
+            continue;
+
+        }
+
+
+        if(char === '"'){
+
+            insideQuotes =
+                !insideQuotes;
+
+            continue;
+
+        }
+
+
+        if(
+            char === "," &&
+            !insideQuotes
+        ){
+
+            result.push(
+                current
+            );
+
+            current = "";
+
+            continue;
+
+        }
+
+
+        current += char;
+
+    }
+
+
+    result.push(current);
+
+    return result;
+
+}
+
+
+/* =========================================================
+   UTILIDADES
+========================================================= */
+
+function escapeHTML(value){
+
+    return String(
+        value ?? ""
+    )
+
+    .replaceAll(
+        "&",
+        "&amp;"
+    )
+
+    .replaceAll(
+        "<",
+        "&lt;"
+    )
+
+    .replaceAll(
+        ">",
+        "&gt;"
+    )
+
+    .replaceAll(
+        '"',
+        "&quot;"
+    )
+
+    .replaceAll(
+        "'",
+        "&#039;"
+    );
+
+}
+
+
+function showToast(
+    message,
+    type = ""
+){
+
+    const container =
+        document.getElementById(
+            "toastContainer"
+        );
+
+
+    const toast =
+        document.createElement("div");
+
+    toast.className =
+        `toast ${type}`;
+
+    toast.textContent =
+        message;
+
+
+    container.appendChild(toast);
+
+
+    setTimeout(() => {
+
+        toast.style.opacity = "0";
+
+        toast.style.transform =
+            "translateY(10px)";
+
+        setTimeout(
+            () => toast.remove(),
+            250
+        );
+
+    },3000);
+
+}
+
+
+/* =========================================================
+   NAVEGACIÓN
+========================================================= */
+
+function focusRecords(){
+
+    document
+        .getElementById(
+            "recordsPanel"
+        )
+        .scrollIntoView({
+            behavior:"smooth"
+        });
+
+}
+
+
+function toggleSidebar(){
+
+    document
+        .getElementById(
+            "sidebar"
+        )
+        .classList.toggle("open");
+
+}
+
+</script>
+
+</body>
+</html>
