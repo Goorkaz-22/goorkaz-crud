@@ -158,6 +158,14 @@ app.use(
     usersRoutes
 );
 
+const auditRoutes =
+    require("./routes/audit");
+
+app.use(
+    "/api/audit",
+    auditRoutes
+);
+
 
 // =====================================================
 // RUTA 404
