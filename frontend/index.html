@@ -1936,6 +1936,45 @@ document
         }
     );
 
+
+// =====================================================
+// PERMISOS DE NAVEGACIÓN
+// =====================================================
+
+function applyNavigationPermissions() {
+
+    const isAdmin =
+        currentUser &&
+        String(currentUser.role).toLowerCase() === "admin";
+
+
+    const usersNav =
+        document.getElementById("usersNav");
+
+    const auditNav =
+        document.getElementById("auditNav");
+
+
+    // Usuarios
+    if (usersNav) {
+
+        usersNav.style.display =
+            isAdmin ? "" : "none";
+
+    }
+
+
+    // Auditoría
+    if (auditNav) {
+
+        auditNav.style.display =
+            isAdmin ? "" : "none";
+
+    }
+
+}
+    
+
 // =====================================================
 // CONTROL DE NAVEGACIÓN POR ROL
 // =====================================================
@@ -3437,6 +3476,8 @@ function escapeHtml(
 // =====================================================
 // INICIAR
 // =====================================================
+
+applyNavigationPermissions();
 
 loadDashboard();
 
