@@ -1,1 +1,26 @@
-
+{
+  "name": "goorkaz-crud-backend",
+  "version": "3.0.0",
+  "description": "Backend de Goorkaz CRUD V3",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "goorkaz",
+    "crud",
+    "api",
+    "sqlite",
+    "express"
+  ],
+  "author": "Goorkaz",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "better-sqlite3": "^12.4.1",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
