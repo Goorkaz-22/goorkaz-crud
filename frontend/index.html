@@ -1827,7 +1827,10 @@ document
                             "Registros",
 
                         users:
-                            "Usuarios"
+                            "Usuarios",
+
+                        audit:
+                            "Auditoría"
 
                     };
 
@@ -1866,6 +1869,15 @@ document
 
                     }
 
+
+                    if (
+                        view === "audit"
+                    ) {
+
+                        loadAudit();
+
+                    }
+
                 }
             );
 
@@ -1885,6 +1897,14 @@ if (
     document
         .getElementById(
             "usersNav"
+        )
+        .style.display =
+            "none";
+
+
+    document
+        .getElementById(
+            "auditNav"
         )
         .style.display =
             "none";
@@ -3032,6 +3052,179 @@ function closeUserModal() {
 
 }
 
+
+// =====================================================
+// AUDITORÍA
+// =====================================================
+
+async function loadAudit() {
+
+    if (
+        !currentUser ||
+        currentUser.role !== "admin"
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const data =
+            await apiFetch(
+                "/audit"
+            );
+
+
+        const logs =
+            data.logs || [];
+
+
+        const container =
+            document.getElementById(
+                "auditTable"
+            );
+
+
+        if (!logs.length) {
+
+            container.innerHTML = `
+
+                <div class="empty">
+
+                    No hay acciones registradas todavía.
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        let html = `
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Fecha</th>
+
+                        <th>Usuario</th>
+
+                        <th>Acción</th>
+
+                        <th>Descripción</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+        `;
+
+
+        logs.forEach(
+            log => {
+
+                html += `
+
+                    <tr>
+
+                        <td>
+                            #${log.id}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                log.created_at || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                log.user_name || "Sistema"
+                            )}
+                        </td>
+
+                        <td>
+
+                            <span class="status active">
+                                ${escapeHtml(
+                                    log.action
+                                )}
+                            </span>
+
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                log.description || "-"
+                            )}
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+
+        html += `
+
+                </tbody>
+
+            </table>
+
+        `;
+
+
+        container.innerHTML =
+            html;
+
+
+    } catch (error) {
+
+        console.error(
+            "Error cargando auditoría:",
+            error
+        );
+
+
+        document
+            .getElementById(
+                "auditTable"
+            )
+            .innerHTML = `
+
+                <div class="empty">
+
+                    No se pudo cargar la auditoría.
+
+                    <br><br>
+
+                    <small>
+                        ${escapeHtml(
+                            error.message
+                        )}
+                    </small>
+
+                </div>
+
+            `;
+
+    }
+
+}
+    
 
 // =====================================================
 // LOGOUT
