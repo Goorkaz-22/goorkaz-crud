@@ -10,11 +10,6 @@ const {
 
 const router = express.Router();
 
-
-// =====================================================
-// CONFIGURACIÓN JWT
-// =====================================================
-
 const JWT_SECRET =
     process.env.JWT_SECRET ||
     "goorkaz-dev-secret-change-this";
@@ -27,19 +22,15 @@ const JWT_SECRET =
 function createToken(user) {
 
     return jwt.sign(
-
         {
             id: user.id,
             email: user.email,
             role: user.role
         },
-
         JWT_SECRET,
-
         {
             expiresIn: "8h"
         }
-
     );
 
 }
@@ -62,30 +53,16 @@ router.post(
             } = req.body;
 
 
-            // -----------------------------------------
-            // VALIDACIÓN
-            // -----------------------------------------
-
-            if (
-                !email ||
-                !password
-            ) {
+            if (!email || !password) {
 
                 return res.status(400).json({
-
                     success: false,
-
                     message:
                         "Correo y contraseña son obligatorios"
-
                 });
 
             }
 
-
-            // -----------------------------------------
-            // NORMALIZAR CORREO
-            // -----------------------------------------
 
             const normalizedEmail =
                 email
@@ -93,19 +70,9 @@ router.post(
                     .toLowerCase();
 
 
-            // -----------------------------------------
-            // BUSCAR USUARIO ACTIVO
-            // -----------------------------------------
-
             const user =
                 db.prepare(`
-                    SELECT
-                        id,
-                        name,
-                        email,
-                        password,
-                        role,
-                        active
+                    SELECT *
                     FROM users
                     WHERE email = ?
                     AND active = 1
@@ -114,27 +81,16 @@ router.post(
                 );
 
 
-            // -----------------------------------------
-            // USUARIO NO ENCONTRADO
-            // -----------------------------------------
-
             if (!user) {
 
                 return res.status(401).json({
-
                     success: false,
-
                     message:
                         "Credenciales incorrectas"
-
                 });
 
             }
 
-
-            // -----------------------------------------
-            // COMPROBAR CONTRASEÑA
-            // -----------------------------------------
 
             const validPassword =
                 bcrypt.compareSync(
@@ -146,28 +102,17 @@ router.post(
             if (!validPassword) {
 
                 return res.status(401).json({
-
                     success: false,
-
                     message:
                         "Credenciales incorrectas"
-
                 });
 
             }
 
 
-            // -----------------------------------------
-            // CREAR TOKEN
-            // -----------------------------------------
-
             const token =
                 createToken(user);
 
-
-            // -----------------------------------------
-            // RESPUESTA
-            // -----------------------------------------
 
             res.json({
 
@@ -180,30 +125,26 @@ router.post(
 
                 user: {
 
-                    id:
-                        user.id,
+                    id: user.id,
 
-                    name:
-                        user.name,
+                    name: user.name,
 
-                    email:
-                        user.email,
+                    email: user.email,
 
-                    role:
-                        user.role
+                    role: user.role
 
                 }
 
             });
 
+        }
 
-        } catch (error) {
+        catch (error) {
 
             console.error(
                 "Error en login:",
                 error
             );
-
 
             res.status(500).json({
 
@@ -248,10 +189,6 @@ router.get(
                 );
 
 
-            // -----------------------------------------
-            // USUARIO NO EXISTE
-            // -----------------------------------------
-
             if (!user) {
 
                 return res.status(404).json({
@@ -266,13 +203,9 @@ router.get(
             }
 
 
-            // -----------------------------------------
-            // USUARIO DESACTIVADO
-            // -----------------------------------------
-
             if (!user.active) {
 
-                return res.status(403).json({
+                return res.status(401).json({
 
                     success: false,
 
@@ -284,10 +217,6 @@ router.get(
             }
 
 
-            // -----------------------------------------
-            // RESPUESTA
-            // -----------------------------------------
-
             res.json({
 
                 success: true,
@@ -296,14 +225,14 @@ router.get(
 
             });
 
+        }
 
-        } catch (error) {
+        catch (error) {
 
             console.error(
                 "Error obteniendo usuario:",
                 error
             );
-
 
             res.status(500).json({
 
