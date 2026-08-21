@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Goorkaz CRUD — Iniciar sesión</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+
+            min-height: 100vh;
+
+            font-family:
+                Inter,
+                Arial,
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top right,
+                    #243b53 0%,
+                    #101827 45%,
+                    #080d16 100%
+                );
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 24px;
+
+            color: #ffffff;
+
+        }
+
+        .login-container {
+
+            width: 100%;
+
+            max-width: 420px;
+
+        }
+
+        .brand {
+
+            text-align: center;
+
+            margin-bottom: 24px;
+
+        }
+
+        .logo {
+
+            width: 72px;
+
+            height: 72px;
+
+            margin: 0 auto 16px;
+
+            border-radius: 22px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 32px;
+
+            font-weight: 800;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffffff,
+                    #dbeafe
+                );
+
+            color: #101827;
+
+            box-shadow:
+                0 18px 40px
+                rgba(0,0,0,.3);
+
+        }
+
+        .brand h1 {
+
+            font-size: 28px;
+
+            letter-spacing: -1px;
+
+        }
+
+        .brand p {
+
+            margin-top: 6px;
+
+            color: #9caec4;
+
+            font-size: 14px;
+
+        }
+
+        .card {
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .07
+                );
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .1
+                );
+
+            backdrop-filter:
+                blur(20px);
+
+            border-radius: 24px;
+
+            padding: 32px;
+
+            box-shadow:
+                0 30px 80px
+                rgba(0,0,0,.35);
+
+        }
+
+        .field {
+
+            margin-bottom: 18px;
+
+        }
+
+        label {
+
+            display: block;
+
+            margin-bottom: 8px;
+
+            font-size: 13px;
+
+            color: #c7d2e1;
+
+        }
+
+        input {
+
+            width: 100%;
+
+            padding: 14px 16px;
+
+            border-radius: 12px;
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .12
+                );
+
+            background:
+                rgba(
+                    0,
+                    0,
+                    0,
+                    .18
+                );
+
+            color: white;
+
+            outline: none;
+
+            font-size: 15px;
+
+            transition: .2s;
+
+        }
+
+        input:focus {
+
+            border-color:
+                #93c5fd;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(
+                    147,
+                    197,
+                    253,
+                    .12
+                );
+
+        }
+
+        input::placeholder {
+
+            color: #718096;
+
+        }
+
+        button {
+
+            width: 100%;
+
+            border: none;
+
+            border-radius: 12px;
+
+            padding: 14px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffffff,
+                    #dbeafe
+                );
+
+            color: #101827;
+
+            font-weight: 700;
+
+            font-size: 15px;
+
+            cursor: pointer;
+
+            transition:
+                transform .2s,
+                box-shadow .2s;
+
+        }
+
+        button:hover {
+
+            transform:
+                translateY(-1px);
+
+            box-shadow:
+                0 12px 30px
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .12
+                );
+
+        }
+
+        button:disabled {
+
+            opacity: .6;
+
+            cursor: not-allowed;
+
+            transform: none;
+
+        }
+
+        .message {
+
+            display: none;
+
+            margin-bottom: 18px;
+
+            padding: 12px 14px;
+
+            border-radius: 10px;
+
+            font-size: 13px;
+
+        }
+
+        .message.error {
+
+            display: block;
+
+            background:
+                rgba(
+                    239,
+                    68,
+                    68,
+                    .12
+                );
+
+            border:
+                1px solid
+                rgba(
+                    239,
+                    68,
+                    68,
+                    .25
+                );
+
+            color: #fecaca;
+
+        }
+
+        .message.success {
+
+            display: block;
+
+            background:
+                rgba(
+                    34,
+                    197,
+                    94,
+                    .12
+                );
+
+            border:
+                1px solid
+                rgba(
+                    34,
+                    197,
+                    94,
+                    .25
+                );
+
+            color: #bbf7d0;
+
+        }
+
+        .footer {
+
+            text-align: center;
+
+            margin-top: 20px;
+
+            color: #718096;
+
+            font-size: 12px;
+
+        }
+
+        .footer strong {
+
+            color: #cbd5e1;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="login-container">
+
+
+    <div class="brand">
+
+        <div class="logo">
+            G
+        </div>
+
+        <h1>
+            Goorkaz CRUD
+        </h1>
+
+        <p>
+            Sistema de gestión V3
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+
+        <div
+            id="message"
+            class="message"
+        ></div>
+
+
+        <form
+            id="loginForm"
+        >
+
+
+            <div class="field">
+
+                <label
+                    for="email"
+                >
+                    Correo electrónico
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="tu@email.com"
+                    autocomplete="email"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label
+                    for="password"
+                >
+                    Contraseña
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="••••••••"
+                    autocomplete="current-password"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                id="loginButton"
+            >
+                Iniciar sesión
+            </button>
+
+
+        </form>
+
+
+    </div>
+
+
+    <div class="footer">
+
+        <strong>
+            Goorkaz
+        </strong>
+
+        · CRUD V3
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+
+const API_URL =
+    "http://localhost:3000/api";
+
+
+const form =
+    document.getElementById(
+        "loginForm"
+    );
+
+
+const button =
+    document.getElementById(
+        "loginButton"
+    );
+
+
+const message =
+    document.getElementById(
+        "message"
+    );
+
+
+// =====================================================
+// MOSTRAR MENSAJE
+// =====================================================
+
+function showMessage(
+    text,
+    type = "error"
+) {
+
+    message.textContent =
+        text;
+
+    message.className =
+        `message ${type}`;
+
+}
+
+
+// =====================================================
+// LOGIN
+// =====================================================
+
+form.addEventListener(
+    "submit",
+    async (event) => {
+
+        event.preventDefault();
+
+
+        const email =
+            document
+                .getElementById(
+                    "email"
+                )
+                .value
+                .trim();
+
+
+        const password =
+            document
+                .getElementById(
+                    "password"
+                )
+                .value;
+
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Ingresando...";
+
+
+        message.className =
+            "message";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_URL}/auth/login`,
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                email,
+
+                                password
+
+                            })
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    "No se pudo iniciar sesión"
+                );
+
+            }
+
+
+            // -----------------------------------------
+            // GUARDAR SESIÓN
+            // -----------------------------------------
+
+            localStorage.setItem(
+                "goorkaz_token",
+                data.token
+            );
+
+
+            localStorage.setItem(
+                "goorkaz_user",
+                JSON.stringify(
+                    data.user
+                )
+            );
+
+
+            showMessage(
+                "Inicio de sesión correcto. Redirigiendo...",
+                "success"
+            );
+
+
+            setTimeout(
+                () => {
+
+                    window.location.href =
+                        "index.html";
+
+                },
+                700
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            showMessage(
+                error.message ||
+                "No se pudo conectar con el servidor"
+            );
+
+
+        } finally {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "Iniciar sesión";
+
+        }
+
+    }
+);
+
+
+// =====================================================
+// COMPROBAR SESIÓN EXISTENTE
+// =====================================================
+
+const existingToken =
+    localStorage.getItem(
+        "goorkaz_token"
+    );
+
+
+if (existingToken) {
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
