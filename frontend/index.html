@@ -1031,6 +1031,16 @@
                 Usuarios
             </button>
 
+            <button
+                data-view="audit"
+                id="auditNav"
+            >
+                <span class="nav-icon">
+                    ◷
+                </span>
+                Auditoría
+            </button>
+
         </nav>
 
 
@@ -1287,6 +1297,51 @@
 
         </section>
 
+        <!-- =================================================
+     AUDITORÍA
+================================================== -->
+
+<section
+    class="view"
+    id="auditView"
+>
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div>
+
+                <div class="card-title">
+                    Auditoría del sistema
+                </div>
+
+                <div
+                    class="page-subtitle"
+                    style="margin-top:4px;"
+                >
+                    Historial de acciones realizadas
+                </div>
+
+            </div>
+
+            <button
+                class="btn btn-secondary"
+                onclick="loadAudit()"
+            >
+                Actualizar
+            </button>
+
+        </div>
+
+        <div
+            id="auditTable"
+            class="table-wrapper"
+        ></div>
+
+    </div>
+
+</section>
 
     </main>
 
