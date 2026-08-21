@@ -1,0 +1,3059 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Goorkaz CRUD V3</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        :root {
+
+            --bg:
+                #080d16;
+
+            --sidebar:
+                #0d1421;
+
+            --card:
+                #111b2b;
+
+            --card-hover:
+                #162235;
+
+            --border:
+                rgba(255,255,255,.08);
+
+            --text:
+                #f8fafc;
+
+            --muted:
+                #94a3b8;
+
+            --primary:
+                #dbeafe;
+
+            --primary-text:
+                #0f172a;
+
+            --danger:
+                #ef4444;
+
+            --success:
+                #22c55e;
+
+        }
+
+
+        body {
+
+            min-height: 100vh;
+
+            font-family:
+                Inter,
+                Arial,
+                sans-serif;
+
+            background:
+                var(--bg);
+
+            color:
+                var(--text);
+
+        }
+
+
+        /* =====================================================
+           LAYOUT
+        ===================================================== */
+
+        .app {
+
+            display: flex;
+
+            min-height: 100vh;
+
+        }
+
+
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
+
+        .sidebar {
+
+            width: 250px;
+
+            background:
+                var(--sidebar);
+
+            border-right:
+                1px solid
+                var(--border);
+
+            padding: 24px 16px;
+
+            position: fixed;
+
+            left: 0;
+
+            top: 0;
+
+            bottom: 0;
+
+            z-index: 20;
+
+        }
+
+
+        .brand {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            padding:
+                4px 10px 28px;
+
+        }
+
+
+        .brand-logo {
+
+            width: 42px;
+
+            height: 42px;
+
+            border-radius: 13px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffffff,
+                    #cbd5e1
+                );
+
+            color:
+                #0f172a;
+
+            font-size: 20px;
+
+            font-weight: 900;
+
+        }
+
+
+        .brand-name {
+
+            font-size: 18px;
+
+            font-weight: 800;
+
+        }
+
+
+        .brand-version {
+
+            display: block;
+
+            color:
+                var(--muted);
+
+            font-size: 11px;
+
+            margin-top: 2px;
+
+        }
+
+
+        .nav-title {
+
+            font-size: 10px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+
+            color:
+                #64748b;
+
+            padding:
+                0 10px 8px;
+
+        }
+
+
+        .nav {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 4px;
+
+        }
+
+
+        .nav button {
+
+            width: 100%;
+
+            border: none;
+
+            background: transparent;
+
+            color:
+                var(--muted);
+
+            padding: 12px;
+
+            border-radius: 10px;
+
+            text-align: left;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+            transition: .2s;
+
+        }
+
+
+        .nav button:hover,
+        .nav button.active {
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .07
+                );
+
+            color:
+                var(--text);
+
+        }
+
+
+        .nav-icon {
+
+            display: inline-block;
+
+            width: 24px;
+
+        }
+
+
+        .sidebar-bottom {
+
+            position: absolute;
+
+            bottom: 20px;
+
+            left: 16px;
+
+            right: 16px;
+
+        }
+
+
+        .logout {
+
+            width: 100%;
+
+            padding: 11px;
+
+            border: 1px solid
+                var(--border);
+
+            background:
+                transparent;
+
+            color:
+                #fca5a5;
+
+            border-radius: 10px;
+
+            cursor: pointer;
+
+        }
+
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
+
+        .main {
+
+            margin-left: 250px;
+
+            width: calc(
+                100% - 250px
+            );
+
+            padding: 28px;
+
+        }
+
+
+        .topbar {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+
+            margin-bottom: 30px;
+
+        }
+
+
+        .page-title {
+
+            font-size: 26px;
+
+            font-weight: 800;
+
+        }
+
+
+        .page-subtitle {
+
+            color:
+                var(--muted);
+
+            font-size: 13px;
+
+            margin-top: 5px;
+
+        }
+
+
+        .user {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+        }
+
+
+        .avatar {
+
+            width: 40px;
+
+            height: 40px;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                #dbeafe;
+
+            color:
+                #0f172a;
+
+            font-weight: 800;
+
+        }
+
+
+        .user-info {
+
+            text-align: right;
+
+        }
+
+
+        .user-name {
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+        }
+
+
+        .user-role {
+
+            font-size: 11px;
+
+            color:
+                var(--muted);
+
+            text-transform:
+                capitalize;
+
+        }
+
+
+        /* =====================================================
+           VIEWS
+        ===================================================== */
+
+        .view {
+
+            display: none;
+
+        }
+
+
+        .view.active {
+
+            display: block;
+
+        }
+
+
+        /* =====================================================
+           STATS
+        ===================================================== */
+
+        .stats {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    3,
+                    1fr
+                );
+
+            gap: 16px;
+
+            margin-bottom: 24px;
+
+        }
+
+
+        .stat {
+
+            background:
+                var(--card);
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 16px;
+
+            padding: 20px;
+
+        }
+
+
+        .stat-label {
+
+            color:
+                var(--muted);
+
+            font-size: 12px;
+
+        }
+
+
+        .stat-value {
+
+            font-size: 30px;
+
+            font-weight: 800;
+
+            margin-top: 8px;
+
+        }
+
+
+        /* =====================================================
+           CARD
+        ===================================================== */
+
+        .card {
+
+            background:
+                var(--card);
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 16px;
+
+            overflow: hidden;
+
+        }
+
+
+        .card-header {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+
+            padding: 18px 20px;
+
+            border-bottom:
+                1px solid
+                var(--border);
+
+        }
+
+
+        .card-title {
+
+            font-size: 15px;
+
+            font-weight: 700;
+
+        }
+
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        .btn {
+
+            border: none;
+
+            border-radius: 9px;
+
+            padding:
+                10px 14px;
+
+            cursor: pointer;
+
+            font-weight: 700;
+
+            font-size: 12px;
+
+        }
+
+
+        .btn-primary {
+
+            background:
+                var(--primary);
+
+            color:
+                var(--primary-text);
+
+        }
+
+
+        .btn-danger {
+
+            background:
+                rgba(
+                    239,
+                    68,
+                    68,
+                    .12
+                );
+
+            color:
+                #fca5a5;
+
+        }
+
+
+        .btn-secondary {
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .07
+                );
+
+            color:
+                var(--text);
+
+        }
+
+
+        /* =====================================================
+           TABLE
+        ===================================================== */
+
+        .table-wrapper {
+
+            overflow-x:
+                auto;
+
+        }
+
+
+        table {
+
+            width: 100%;
+
+            border-collapse:
+                collapse;
+
+        }
+
+
+        th {
+
+            color:
+                #64748b;
+
+            font-size: 10px;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                .6px;
+
+            text-align: left;
+
+            padding:
+                13px 20px;
+
+        }
+
+
+        td {
+
+            padding:
+                14px 20px;
+
+            border-top:
+                1px solid
+                var(--border);
+
+            font-size: 13px;
+
+        }
+
+
+        .status {
+
+            display: inline-block;
+
+            padding:
+                5px 8px;
+
+            border-radius: 20px;
+
+            font-size: 10px;
+
+        }
+
+
+        .status.active {
+
+            background:
+                rgba(
+                    34,
+                    197,
+                    94,
+                    .12
+                );
+
+            color:
+                #86efac;
+
+        }
+
+
+        .status.inactive {
+
+            background:
+                rgba(
+                    239,
+                    68,
+                    68,
+                    .12
+                );
+
+            color:
+                #fca5a5;
+
+        }
+
+
+        .actions {
+
+            display: flex;
+
+            gap: 6px;
+
+        }
+
+
+        /* =====================================================
+           MODAL
+        ===================================================== */
+
+        .modal {
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(
+                    0,
+                    0,
+                    0,
+                    .65
+                );
+
+            display: none;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 20px;
+
+            z-index: 100;
+
+        }
+
+
+        .modal.open {
+
+            display: flex;
+
+        }
+
+
+        .modal-box {
+
+            width: 100%;
+
+            max-width: 480px;
+
+            background:
+                #111827;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 18px;
+
+            padding: 24px;
+
+        }
+
+
+        .modal-header {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            margin-bottom: 22px;
+
+        }
+
+
+        .close {
+
+            background:
+                transparent;
+
+            border: none;
+
+            color:
+                var(--muted);
+
+            font-size: 22px;
+
+            cursor: pointer;
+
+        }
+
+
+        .field {
+
+            margin-bottom: 15px;
+
+        }
+
+
+        .field label {
+
+            display: block;
+
+            color:
+                var(--muted);
+
+            font-size: 12px;
+
+            margin-bottom: 7px;
+
+        }
+
+
+        .field input,
+        .field select {
+
+            width: 100%;
+
+            padding: 12px;
+
+            border-radius: 9px;
+
+            border:
+                1px solid
+                var(--border);
+
+            background:
+                #0b1220;
+
+            color:
+                white;
+
+            outline: none;
+
+        }
+
+
+        .modal-footer {
+
+            display: flex;
+
+            justify-content:
+                flex-end;
+
+            gap: 8px;
+
+            margin-top: 20px;
+
+        }
+
+
+        .empty {
+
+            padding: 40px;
+
+            text-align: center;
+
+            color:
+                var(--muted);
+
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (
+            max-width: 800px
+        ) {
+
+            .sidebar {
+
+                width: 70px;
+
+                padding:
+                    18px 8px;
+
+            }
+
+
+            .brand-name,
+            .brand-version,
+            .nav-title {
+
+                display: none;
+
+            }
+
+
+            .brand {
+
+                justify-content:
+                    center;
+
+            }
+
+
+            .nav button {
+
+                text-align:
+                    center;
+
+            }
+
+
+            .main {
+
+                margin-left: 70px;
+
+                width:
+                    calc(
+                        100% - 70px
+                    );
+
+                padding: 18px;
+
+            }
+
+
+            .stats {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+
+            .user-info {
+
+                display: none;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                G
+            </div>
+
+            <div>
+
+                <div class="brand-name">
+                    Goorkaz
+                </div>
+
+                <span class="brand-version">
+                    CRUD V3
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="nav-title">
+            Principal
+        </div>
+
+
+        <nav class="nav">
+
+            <button
+                class="active"
+                data-view="dashboard"
+            >
+                <span class="nav-icon">
+                    ◈
+                </span>
+                Dashboard
+            </button>
+
+
+            <button
+                data-view="records"
+            >
+                <span class="nav-icon">
+                    ▤
+                </span>
+                Registros
+            </button>
+
+
+            <button
+                data-view="users"
+                id="usersNav"
+            >
+                <span class="nav-icon">
+                    ◉
+                </span>
+                Usuarios
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <button
+                class="logout"
+                id="logoutButton"
+            >
+                Cerrar sesión
+            </button>
+
+        </div>
+
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="main">
+
+
+        <header class="topbar">
+
+
+            <div>
+
+                <div
+                    class="page-title"
+                    id="pageTitle"
+                >
+                    Dashboard
+                </div>
+
+                <div class="page-subtitle">
+                    Administración de Goorkaz CRUD
+                </div>
+
+            </div>
+
+
+            <div class="user">
+
+
+                <div class="user-info">
+
+                    <div
+                        class="user-name"
+                        id="userName"
+                    >
+                        Usuario
+                    </div>
+
+                    <div
+                        class="user-role"
+                        id="userRole"
+                    >
+                        —
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="avatar"
+                    id="avatar"
+                >
+                    G
+                </div>
+
+
+            </div>
+
+
+        </header>
+
+
+        <!-- =================================================
+             DASHBOARD
+        ================================================== -->
+
+        <section
+            class="view active"
+            id="dashboardView"
+        >
+
+
+            <div class="stats">
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Total de registros
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="totalRecords"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Registros activos
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="activeRecords"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Usuarios
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="totalUsers"
+                    >
+                        —
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div class="card-title">
+                        Últimos registros
+                    </div>
+
+                    <button
+                        class="btn btn-secondary"
+                        onclick="loadRecords()"
+                    >
+                        Actualizar
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="recentRecords"
+                    class="table-wrapper"
+                ></div>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             RECORDS
+        ================================================== -->
+
+        <section
+            class="view"
+            id="recordsView"
+        >
+
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div class="card-title">
+                        Registros
+                    </div>
+
+
+                    <button
+                        class="btn btn-primary"
+                        id="addRecordButton"
+                    >
+                        + Nuevo registro
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="recordsTable"
+                    class="table-wrapper"
+                ></div>
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             USERS
+        ================================================== -->
+
+        <section
+            class="view"
+            id="usersView"
+        >
+
+
+            <div class="card">
+
+
+                <div class="card-header">
+
+                    <div class="card-title">
+                        Usuarios del sistema
+                    </div>
+
+
+                    <button
+                        class="btn btn-primary"
+                        id="addUserButton"
+                    >
+                        + Nuevo usuario
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="usersTable"
+                    class="table-wrapper"
+                ></div>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+<!-- =====================================================
+     RECORD MODAL
+====================================================== -->
+
+<div
+    class="modal"
+    id="recordModal"
+>
+
+
+    <div class="modal-box">
+
+
+        <div class="modal-header">
+
+            <strong id="recordModalTitle">
+                Nuevo registro
+            </strong>
+
+            <button
+                class="close"
+                onclick="closeRecordModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="recordForm">
+
+
+            <input
+                type="hidden"
+                id="recordId"
+            >
+
+
+            <div class="field">
+
+                <label>
+                    Nombre
+                </label>
+
+                <input
+                    id="recordName"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Correo
+                </label>
+
+                <input
+                    type="email"
+                    id="recordEmail"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Teléfono
+                </label>
+
+                <input
+                    id="recordPhone"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Categoría
+                </label>
+
+                <input
+                    id="recordCategory"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Estado
+                </label>
+
+                <select
+                    id="recordStatus"
+                >
+
+                    <option>
+                        Activo
+                    </option>
+
+                    <option>
+                        Inactivo
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="closeRecordModal()"
+                >
+                    Cancelar
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Guardar
+                </button>
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     USER MODAL
+====================================================== -->
+
+<div
+    class="modal"
+    id="userModal"
+>
+
+
+    <div class="modal-box">
+
+
+        <div class="modal-header">
+
+            <strong>
+                Nuevo usuario
+            </strong>
+
+            <button
+                class="close"
+                onclick="closeUserModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="userForm">
+
+
+            <div class="field">
+
+                <label>
+                    Nombre
+                </label>
+
+                <input
+                    id="newUserName"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Correo
+                </label>
+
+                <input
+                    type="email"
+                    id="newUserEmail"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Contraseña
+                </label>
+
+                <input
+                    type="password"
+                    id="newUserPassword"
+                    minlength="8"
+                    required
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Rol
+                </label>
+
+                <select
+                    id="newUserRole"
+                >
+
+                    <option value="consulta">
+                        Consulta
+                    </option>
+
+                    <option value="operador">
+                        Operador
+                    </option>
+
+                    <option value="admin">
+                        Administrador
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="closeUserModal()"
+                >
+                    Cancelar
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Crear usuario
+                </button>
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+</div>
+
+
+<script>
+
+
+// =====================================================
+// CONFIGURACIÓN
+// =====================================================
+
+const API_URL =
+    "http://localhost:3000/api";
+
+
+const token =
+    localStorage.getItem(
+        "goorkaz_token"
+    );
+
+
+const storedUser =
+    localStorage.getItem(
+        "goorkaz_user"
+    );
+
+
+if (!token) {
+
+    window.location.href =
+        "login.html";
+
+}
+
+
+let currentUser =
+    storedUser
+        ? JSON.parse(storedUser)
+        : null;
+
+
+// =====================================================
+// ELEMENTOS
+// =====================================================
+
+const userName =
+    document.getElementById(
+        "userName"
+    );
+
+const userRole =
+    document.getElementById(
+        "userRole"
+    );
+
+const avatar =
+    document.getElementById(
+        "avatar"
+    );
+
+
+// =====================================================
+// USUARIO
+// =====================================================
+
+if (currentUser) {
+
+    userName.textContent =
+        currentUser.name;
+
+    userRole.textContent =
+        currentUser.role;
+
+    avatar.textContent =
+        currentUser.name
+            .charAt(0)
+            .toUpperCase();
+
+}
+
+
+// =====================================================
+// PETICIÓN API
+// =====================================================
+
+async function apiFetch(
+    endpoint,
+    options = {}
+) {
+
+    const response =
+        await fetch(
+            `${API_URL}${endpoint}`,
+            {
+
+                ...options,
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json",
+
+                    "Authorization":
+                        `Bearer ${token}`,
+
+                    ...(options.headers || {})
+
+                }
+
+            }
+        );
+
+
+    if (
+        response.status === 401
+    ) {
+
+        logout();
+
+        return;
+
+    }
+
+
+    const data =
+        await response.json();
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            data.message ||
+            "Error en la API"
+        );
+
+    }
+
+
+    return data;
+
+}
+
+
+// =====================================================
+// NAVEGACIÓN
+// =====================================================
+
+document
+    .querySelectorAll(".nav button")
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const view =
+                        button.dataset.view;
+
+
+                    document
+                        .querySelectorAll(".nav button")
+                        .forEach(
+                            item =>
+                                item.classList.remove(
+                                    "active"
+                                )
+                        );
+
+
+                    button.classList.add(
+                        "active"
+                    );
+
+
+                    document
+                        .querySelectorAll(".view")
+                        .forEach(
+                            section =>
+                                section.classList.remove(
+                                    "active"
+                                )
+                        );
+
+
+                    document
+                        .getElementById(
+                            `${view}View`
+                        )
+                        .classList.add(
+                            "active"
+                        );
+
+
+                    const titles = {
+
+                        dashboard:
+                            "Dashboard",
+
+                        records:
+                            "Registros",
+
+                        users:
+                            "Usuarios"
+
+                    };
+
+
+                    document
+                        .getElementById(
+                            "pageTitle"
+                        )
+                        .textContent =
+                            titles[view];
+
+
+                    if (
+                        view === "dashboard"
+                    ) {
+
+                        loadDashboard();
+
+                    }
+
+
+                    if (
+                        view === "records"
+                    ) {
+
+                        loadRecords();
+
+                    }
+
+
+                    if (
+                        view === "users"
+                    ) {
+
+                        loadUsers();
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+// =====================================================
+// OCULTAR USUARIOS SI NO ES ADMIN
+// =====================================================
+
+if (
+    !currentUser ||
+    currentUser.role !== "admin"
+) {
+
+    document
+        .getElementById(
+            "usersNav"
+        )
+        .style.display =
+            "none";
+
+}
+
+
+// =====================================================
+// DASHBOARD
+// =====================================================
+
+async function loadDashboard() {
+
+    try {
+
+        const data =
+            await apiFetch(
+                "/records"
+            );
+
+
+        const records =
+            data.records || [];
+
+
+        document
+            .getElementById(
+                "totalRecords"
+            )
+            .textContent =
+                records.length;
+
+
+        document
+            .getElementById(
+                "activeRecords"
+            )
+            .textContent =
+                records.filter(
+                    record =>
+                        record.status ===
+                        "Activo"
+                ).length;
+
+
+        const recent =
+            records.slice(
+                0,
+                5
+            );
+
+
+        renderRecordsTable(
+            recent,
+            "recentRecords",
+            true
+        );
+
+
+        if (
+            currentUser &&
+            currentUser.role === "admin"
+        ) {
+
+            try {
+
+                const users =
+                    await apiFetch(
+                        "/users"
+                    );
+
+
+                document
+                    .getElementById(
+                        "totalUsers"
+                    )
+                    .textContent =
+                        users.users.length;
+
+            } catch (error) {
+
+                document
+                    .getElementById(
+                        "totalUsers"
+                    )
+                    .textContent =
+                        "—";
+
+            }
+
+        } else {
+
+            document
+                .getElementById(
+                    "totalUsers"
+                )
+                .textContent =
+                    "—";
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// REGISTROS
+// =====================================================
+
+async function loadRecords() {
+
+    try {
+
+        const data =
+            await apiFetch(
+                "/records"
+            );
+
+
+        renderRecordsTable(
+            data.records || [],
+            "recordsTable",
+            false
+        );
+
+
+    } catch (error) {
+
+        alert(
+            error.message
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// RENDER TABLA
+// =====================================================
+
+function renderRecordsTable(
+    records,
+    containerId,
+    compact = false
+) {
+
+    const container =
+        document.getElementById(
+            containerId
+        );
+
+
+    if (!records.length) {
+
+        container.innerHTML = `
+
+            <div class="empty">
+
+                No hay registros todavía.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    let html = `
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+
+                    <th>Nombre</th>
+
+                    <th>Email</th>
+
+                    <th>Categoría</th>
+
+                    <th>Estado</th>
+
+                    ${
+                        compact
+                            ? ""
+                            : "<th>Acciones</th>"
+                    }
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+    `;
+
+
+    records.forEach(
+        record => {
+
+            html += `
+
+                <tr>
+
+                    <td>
+                        #${record.id}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            record.name
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            record.email
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            record.category
+                        )}
+                    </td>
+
+                    <td>
+
+                        <span
+                            class="status ${
+                                record.status === "Activo"
+                                    ? "active"
+                                    : "inactive"
+                            }"
+                        >
+                            ${escapeHtml(
+                                record.status
+                            )}
+                        </span>
+
+                    </td>
+
+                    ${
+                        compact
+                            ? ""
+                            : `
+
+                        <td>
+
+                            <div class="actions">
+
+                                ${
+                                    currentUser.role !== "consulta"
+                                        ? `
+
+                                    <button
+                                        class="btn btn-secondary"
+                                        onclick="editRecord(${record.id})"
+                                    >
+                                        Editar
+                                    </button>
+
+                                `
+                                        : ""
+                                }
+
+
+                                ${
+                                    currentUser.role === "admin"
+                                        ? `
+
+                                    <button
+                                        class="btn btn-danger"
+                                        onclick="deleteRecord(${record.id})"
+                                    >
+                                        Eliminar
+                                    </button>
+
+                                `
+                                        : ""
+                                }
+
+                            </div>
+
+                        </td>
+
+                    `
+
+                    }
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+            </tbody>
+
+        </table>
+
+    `;
+
+
+    container.innerHTML =
+        html;
+
+}
+
+
+// =====================================================
+// NUEVO REGISTRO
+// =====================================================
+
+document
+    .getElementById(
+        "addRecordButton"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            if (
+                currentUser.role ===
+                "consulta"
+            ) {
+
+                return;
+
+            }
+
+
+            document
+                .getElementById(
+                    "recordForm"
+                )
+                .reset();
+
+
+            document
+                .getElementById(
+                    "recordId"
+                )
+                .value = "";
+
+
+            document
+                .getElementById(
+                    "recordModalTitle"
+                )
+                .textContent =
+                    "Nuevo registro";
+
+
+            document
+                .getElementById(
+                    "recordModal"
+                )
+                .classList.add(
+                    "open"
+                );
+
+        }
+    );
+
+
+// =====================================================
+// GUARDAR REGISTRO
+// =====================================================
+
+document
+    .getElementById(
+        "recordForm"
+    )
+    .addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            const id =
+                document
+                    .getElementById(
+                        "recordId"
+                    )
+                    .value;
+
+
+            const body = {
+
+                name:
+                    document
+                        .getElementById(
+                            "recordName"
+                        )
+                        .value,
+
+                email:
+                    document
+                        .getElementById(
+                            "recordEmail"
+                        )
+                        .value,
+
+                phone:
+                    document
+                        .getElementById(
+                            "recordPhone"
+                        )
+                        .value,
+
+                category:
+                    document
+                        .getElementById(
+                            "recordCategory"
+                        )
+                        .value,
+
+                status:
+                    document
+                        .getElementById(
+                            "recordStatus"
+                        )
+                        .value
+
+            };
+
+
+            try {
+
+                if (id) {
+
+                    await apiFetch(
+                        `/records/${id}`,
+                        {
+
+                            method:
+                                "PUT",
+
+                            body:
+                                JSON.stringify(
+                                    body
+                                )
+
+                        }
+                    );
+
+                } else {
+
+                    await apiFetch(
+                        "/records",
+                        {
+
+                            method:
+                                "POST",
+
+                            body:
+                                JSON.stringify(
+                                    body
+                                )
+
+                        }
+                    );
+
+                }
+
+
+                closeRecordModal();
+
+                await loadRecords();
+
+                await loadDashboard();
+
+
+            } catch (error) {
+
+                alert(
+                    error.message
+                );
+
+            }
+
+        }
+    );
+
+
+// =====================================================
+// EDITAR REGISTRO
+// =====================================================
+
+async function editRecord(id) {
+
+    try {
+
+        const data =
+            await apiFetch(
+                `/records/${id}`
+            );
+
+
+        const record =
+            data.record;
+
+
+        document
+            .getElementById(
+                "recordId"
+            )
+            .value =
+                record.id;
+
+
+        document
+            .getElementById(
+                "recordName"
+            )
+            .value =
+                record.name;
+
+
+        document
+            .getElementById(
+                "recordEmail"
+            )
+            .value =
+                record.email;
+
+
+        document
+            .getElementById(
+                "recordPhone"
+            )
+            .value =
+                record.phone || "";
+
+
+        document
+            .getElementById(
+                "recordCategory"
+            )
+            .value =
+                record.category;
+
+
+        document
+            .getElementById(
+                "recordStatus"
+            )
+            .value =
+                record.status;
+
+
+        document
+            .getElementById(
+                "recordModalTitle"
+            )
+            .textContent =
+                "Editar registro";
+
+
+        document
+            .getElementById(
+                "recordModal"
+            )
+            .classList.add(
+                "open"
+            );
+
+
+    } catch (error) {
+
+        alert(
+            error.message
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// ELIMINAR REGISTRO
+// =====================================================
+
+async function deleteRecord(id) {
+
+    if (
+        !confirm(
+            "¿Seguro que querés eliminar este registro?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await apiFetch(
+            `/records/${id}`,
+            {
+
+                method:
+                    "DELETE"
+
+            }
+        );
+
+
+        await loadRecords();
+
+        await loadDashboard();
+
+
+    } catch (error) {
+
+        alert(
+            error.message
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// CERRAR MODAL REGISTRO
+// =====================================================
+
+function closeRecordModal() {
+
+    document
+        .getElementById(
+            "recordModal"
+        )
+        .classList.remove(
+            "open"
+        );
+
+}
+
+
+// =====================================================
+// USUARIOS
+// =====================================================
+
+async function loadUsers() {
+
+    if (
+        currentUser.role !==
+        "admin"
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const data =
+            await apiFetch(
+                "/users"
+            );
+
+
+        const users =
+            data.users || [];
+
+
+        const container =
+            document.getElementById(
+                "usersTable"
+            );
+
+
+        if (!users.length) {
+
+            container.innerHTML = `
+
+                <div class="empty">
+                    No hay usuarios.
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        let html = `
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Nombre</th>
+
+                        <th>Email</th>
+
+                        <th>Rol</th>
+
+                        <th>Estado</th>
+
+                        <th>Acciones</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+        `;
+
+
+        users.forEach(
+            user => {
+
+                html += `
+
+                    <tr>
+
+                        <td>
+                            #${user.id}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                user.name
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                user.email
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                user.role
+                            )}
+                        </td>
+
+                        <td>
+
+                            <span
+                                class="status ${
+                                    user.active
+                                        ? "active"
+                                        : "inactive"
+                                }"
+                            >
+
+                                ${
+                                    user.active
+                                        ? "Activo"
+                                        : "Inactivo"
+                                }
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <div class="actions">
+
+                                <button
+                                    class="btn btn-secondary"
+                                    onclick="changeRole(${user.id}, '${user.role}')"
+                                >
+                                    Rol
+                                </button>
+
+                                <button
+                                    class="btn btn-secondary"
+                                    onclick="toggleUser(${user.id})"
+                                >
+                                    ${
+                                        user.active
+                                            ? "Desactivar"
+                                            : "Activar"
+                                    }
+                                </button>
+
+                                ${
+                                    user.id !== currentUser.id
+                                        ? `
+
+                                    <button
+                                        class="btn btn-danger"
+                                        onclick="deleteUser(${user.id})"
+                                    >
+                                        Eliminar
+                                    </button>
+
+                                `
+                                        : ""
+                                }
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+
+        html += `
+
+                </tbody>
+
+            </table>
+
+        `;
+
+
+        container.innerHTML =
+            html;
+
+
+    } catch (error) {
+
+        alert(
+            error.message
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// NUEVO USUARIO
+// =====================================================
+
+document
+    .getElementById(
+        "addUserButton"
+    )
+    .addEventListener(
+        "click",
+        () => {
+
+            document
+                .getElementById(
+                    "userForm"
+                )
+                .reset();
+
+
+            document
+                .getElementById(
+                    "userModal"
+                )
+                .classList.add(
+                    "open"
+                );
+
+        }
+    );
+
+
+// =====================================================
+// CREAR USUARIO
+// =====================================================
+
+document
+    .getElementById(
+        "userForm"
+    )
+    .addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            const body = {
+
+                name:
+                    document
+                        .getElementById(
+                            "newUserName"
+                        )
+                        .value,
+
+                email:
+                    document
+                        .getElementById(
+                            "newUserEmail"
+                        )
+                        .value,
+
+                password:
+                    document
+                        .getElementById(
+                            "newUserPassword"
+                        )
+                        .value,
+
+                role:
+                    document
+                        .getElementById(
+                            "newUserRole"
+                        )
+                        .value
+
+            };
+
+
+            try {
+
+                await apiFetch(
+                    "/users",
+                    {
+
+                        method:
+                            "POST",
+
+                        body:
+                            JSON.stringify(
+                                body
+                            )
+
+                    }
+                );
+
+
+                closeUserModal();
+
+                await loadUsers();
+
+                await loadDashboard();
+
+
+            } catch (error) {
+
+                alert(
+                    error.message
+                );
+
+            }
+
+        }
+    );
+
+
+// =====================================================
+// CAMBIAR ROL
+// =====================================================
+
+async function changeRole(
+    id,
+    currentRole
+) {
+
+    const role =
+        prompt(
+            "Nuevo rol:\n\nadmin\noperador\nconsulta",
+            currentRole
+        );
+
+
+    if (
+        !role ||
+        ![
+            "admin",
+            "operador",
+            "consulta"
+        ].includes(
+            role
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await apiFetch(
+            `/users/${id}/role`,
+            {
+
+                method:
+                    "PATCH",
+
+                body:
+                    JSON.stringify({
+                        role
+                    })
+
+            }
+        );
+
+
+        await loadUsers();
+
+
+    } catch (error) {
+
+        alert(
+            error.message
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// ACTIVAR / DESACTIVAR
+// =====================================================
+
+async function toggleUser(id) {
+
+    if (
+        !confirm(
+            "¿Querés cambiar el estado de este usuario?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await apiFetch(
+            `/users/${id}/status`,
+            {
+
+                method:
+                    "PATCH"
+
+            }
+        );
+
+
+        await loadUsers();
+
+
+    } catch (error) {
+
+        alert(
+            error.message
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// ELIMINAR USUARIO
+// =====================================================
+
+async function deleteUser(id) {
+
+    if (
+        !confirm(
+            "¿Seguro que querés eliminar este usuario?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await apiFetch(
+            `/users/${id}`,
+            {
+
+                method:
+                    "DELETE"
+
+            }
+        );
+
+
+        await loadUsers();
+
+        await loadDashboard();
+
+
+    } catch (error) {
+
+        alert(
+            error.message
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// CERRAR MODAL USUARIO
+// =====================================================
+
+function closeUserModal() {
+
+    document
+        .getElementById(
+            "userModal"
+        )
+        .classList.remove(
+            "open"
+        );
+
+}
+
+
+// =====================================================
+// LOGOUT
+// =====================================================
+
+document
+    .getElementById(
+        "logoutButton"
+    )
+    .addEventListener(
+        "click",
+        logout
+    );
+
+
+function logout() {
+
+    localStorage.removeItem(
+        "goorkaz_token"
+    );
+
+    localStorage.removeItem(
+        "goorkaz_user"
+    );
+
+
+    window.location.href =
+        "login.html";
+
+}
+
+
+// =====================================================
+// ESCAPAR HTML
+// =====================================================
+
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+// =====================================================
+// INICIAR
+// =====================================================
+
+loadDashboard();
+
+
+</script>
+
+
+</body>
+
+</html>
